@@ -227,7 +227,7 @@ const hdxQHAV = {
                 hdxAVCP.update("hullv1", "v<sub>1</sub>: "+thisAV.vOne.label);
                 hdxAVCP.update("hullv2", "v<sub>2</sub>: "+thisAV.vTwo.label);
                 // AVCP recursionStack
-                let recursionTable = "<span>Recursive Calls</span><table><tr>";
+                let recursionTable = "<tr>";
 				let trSize = Math.min(4, thisAV.recursionStack.length);
 				for(let i = 0; i < trSize; i++){
 					let recursionIndex;
@@ -243,8 +243,8 @@ const hdxQHAV = {
 						recursionTable += "<td>#"+recursionIndex+"<br>"+shortLabel(thisAV.recursionStack[recursionIndex][0].label, 8)+"<br>"+shortLabel(thisAV.recursionStack[recursionIndex][1].label, 8)+"<br>Size: "+thisAV.recursionStack[recursionIndex][2].length+"</td>";
 					}
 				}                
-                recursionTable += "</tr></table>";
-                hdxAVCP.update("recursionStack", recursionTable);
+                recursionTable += "</tr>";
+                document.getElementById("recTable").innerHTML = recursionTable;
                 
                 hdxQHAV.updateShading();
                 
@@ -484,6 +484,9 @@ const hdxQHAV = {
         const hullSeg =`<span>Hull vertices found: <span id="hVertsNum">0</span></span>
         <table id="hullVertexTable" style="width:100%;"><tr><td style="background-color:white; color:black;"><b>Label</b></td><td style="background-color:white; color:black;"><b>Coordinates</b></td></tr></table>`;
         hdxAVCP.update("hullSegments", hullSeg);
+        const recursionTable = '<span>Recursive Calls</span><table id="recTable"></table>';
+        hdxAVCP.update("recursionStack", recursionTable);
+        
         
     },
     // setupUI for quickhull av
