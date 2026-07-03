@@ -43,13 +43,24 @@ const hdxQHAV = {
     vOneTmp: null,
     vTwoTmp: null,
     // polyline object
-    compLine: null,
+    compLine: [],
     
     // elements index 0 is v1, index 1 is v2, index 2 is lower set
     recursionStack: [],
 
     // loop variable that tracks which point is currently being operated upon
     nextToCheck: -1,
+    
+    // obscure irrelevant regions of the map
+    obscureRegion: null,
+    obscure: {
+        color: "black",
+        scale: 4,
+        weight: 0.5,
+	    fillOpacity: 0.1,
+    	name: "obscure",
+        value: 0
+	},
 
     // The avActions array defines all of the actions of the AV
     avActions : [
@@ -71,8 +82,8 @@ const hdxQHAV = {
                 let comLine = [];
                 comLine[0] = [thisAV.vOne.lat, thisAV.vOne.lon];
                 comLine[1] = [thisAV.vTwo.lat, thisAV.vTwo.lon];
-                thisAV.compLine = L.polyline(comLine, visualSettings.visiting)
-                thisAV.compLine.addTo(map);
+                thisAV.compLine.push(L.polyline(comLine, visualSettings.visiting));
+                thisAV.compLine[thisAV.compLine.length-1].addTo(map);
                 thisAV.hullVertices = [];
                 thisAV.hullSegments = [];
                 thisAV.hullVertices.push(thisAV.vOne);
@@ -181,7 +192,7 @@ const hdxQHAV = {
 						hdxAV.nextAction = "cleanup";
 					}
 				}
-                for(let i = 0; i < thisAV.sTwo.length ; i++){
+                for(let i = 0; i < thisAV.sTwo.length; i++){
                 	updateMarkerAndTable(waypoints.indexOf(thisAV.sTwo[i]),
 					 visualSettings.discovered, 40, false);
                 }
@@ -205,17 +216,37 @@ const hdxQHAV = {
 				// dividing line
 				thisAV.slope = (thisAV.vTwo.lat-thisAV.vOne.lat)/(thisAV.vTwo.lon-thisAV.vOne.lon);
                 thisAV.yIntercept = (thisAV.slope*(thisAV.vOne.lon*(-1)))+thisAV.vOne.lat;
-                thisAV.compLine.remove();
                 let comLine = [];
                 comLine[0] = [thisAV.vOne.lat, thisAV.vOne.lon];
                 comLine[1] = [thisAV.vTwo.lat, thisAV.vTwo.lon];
-                thisAV.compLine = L.polyline(comLine, visualSettings.visiting)
-                thisAV.compLine.addTo(map);
+                thisAV.compLine.push(L.polyline(comLine, visualSettings.visiting));
+                thisAV.compLine[thisAV.compLine.length-1].addTo(map);
                 
                 // AVCP updates
                 hdxAVCP.update("checkingLine", "Current line: y="+thisAV.slope+"x+"+thisAV.yIntercept+"<br>"+thisAV.vOne.label+"<-->"+thisAV.vTwo.label);
                 hdxAVCP.update("hullv1", "v<sub>1</sub>: "+thisAV.vOne.label);
                 hdxAVCP.update("hullv2", "v<sub>2</sub>: "+thisAV.vTwo.label);
+                // AVCP recursionStack
+                let recursionTable = "<span>Recursive Calls</span><table><tr>";
+				let trSize = Math.min(4, thisAV.recursionStack.length);
+				for(let i = 0; i < trSize; i++){
+					let recursionIndex;
+					if(i == 3){
+						recursionIndex = 0;
+						recursionTable += "...";
+					}else{
+						recursionIndex = thisAV.recursionStack.length-i-1;
+					}
+					if(thisAV.recursionStack[recursionIndex].length == 1){
+						recursionTable += "<td>#"+recursionIndex+"<br>"+shortLabel(thisAV.recursionStack[recursionIndex][0].label, 8)+"</td>";
+					}else{
+						recursionTable += "<td>#"+recursionIndex+"<br>"+shortLabel(thisAV.recursionStack[recursionIndex][0].label, 8)+"<br>"+shortLabel(thisAV.recursionStack[recursionIndex][1].label, 8)+"<br>Size: "+thisAV.recursionStack[recursionIndex][2].length+"</td>";
+					}
+				}                
+                recursionTable += "</tr></table>";
+                hdxAVCP.update("recursionStack", recursionTable);
+                
+                hdxQHAV.updateShading();
                 
                 hdxAV.nextAction = "findMaxLoop";
             },
@@ -281,12 +312,11 @@ const hdxQHAV = {
 					// temporary line
 					thisAV.slope = (thisAV.vTwoTmp.lat-thisAV.vOneTmp.lat)/(thisAV.vTwoTmp.lon-thisAV.vOneTmp.lon);
                 	thisAV.yIntercept = (thisAV.slope*(thisAV.vOneTmp.lon*(-1)))+thisAV.vOneTmp.lat;
-                	thisAV.compLine.remove();
                 	let comLine = [];
                 	comLine[0] = [thisAV.vOneTmp.lat, thisAV.vOneTmp.lon];
                 	comLine[1] = [thisAV.vTwoTmp.lat, thisAV.vTwoTmp.lon];
-                	thisAV.compLine = L.polyline(comLine, visualSettings.visiting)
-                	thisAV.compLine.addTo(map);
+                	thisAV.compLine.push(L.polyline(comLine, visualSettings.visiting));
+                	thisAV.compLine[thisAV.compLine.length-1].addTo(map);
 					thisAV.nextToCheck = -1;
 					thisAV.currentSet.splice(thisAV.max[1],1);
 					thisAV.futureAction = "secondSplit";
@@ -313,12 +343,11 @@ const hdxQHAV = {
 				// temporary line
 				thisAV.slope = (thisAV.vTwoTmp.lat-thisAV.vOneTmp.lat)/(thisAV.vTwoTmp.lon-thisAV.vOneTmp.lon);
                 thisAV.yIntercept = (thisAV.slope*(thisAV.vOneTmp.lon*(-1)))+thisAV.vOneTmp.lat;
-                thisAV.compLine.remove();
                 let comLine = [];
                 comLine[0] = [thisAV.vOneTmp.lat, thisAV.vOneTmp.lon];
                 comLine[1] = [thisAV.vTwoTmp.lat, thisAV.vTwoTmp.lon];
-                thisAV.compLine = L.polyline(comLine, visualSettings.visiting)
-                thisAV.compLine.addTo(map);
+                thisAV.compLine.push(L.polyline(comLine, visualSettings.visiting));
+                thisAV.compLine[thisAV.compLine.length-1].addTo(map);
 				thisAV.nextToCheck = -1;
 				thisAV.sZero = thisAV.sOne;
 				thisAV.currentSet = thisAV.sTwo;
@@ -413,8 +442,14 @@ const hdxQHAV = {
                     hdxAVCP.update("hullv2", "");
                     hdxAVCP.update("hullMax", "");
                     hdxAVCP.update("checkingLine", "");
+                    hdxAVCP.update("recursionStack", "");
                     
-                    thisAV.compLine.remove();
+                    while(thisAV.compLine.length > 0){
+                    	thisAV.compLine[thisAV.compLine.length-1].remove();
+                    	thisAV.compLine.pop();
+                    }
+                    thisAV.obscureRegion.remove();
+                    thisAV.obscureRegion = null;
                     
                     hdxAV.nextAction = "DONE";
                     hdxAV.iterationDone = true;
@@ -446,6 +481,10 @@ const hdxQHAV = {
         this.code += pcEntry(0, ["split(set, slope, y-intercept)", "&emsp;&emsp;saves &larr; []", "&emsp;&emsp;for (i &larr; 0 to |set-1|)"], "splitLoop");
         this.code += pcEntry(2, ["if v<sub>i</sub>.y > slope*v<sub>i</sub>.x+y-intercept", "&emsp;&emsp;saves+=v<sub>i</sub>", " return saves"], "split");
         
+        const hullSeg =`<span>Hull vertices found: <span id="hVertsNum">0</span></span>
+        <table id="hullVertexTable" style="width:100%;"><tr><td style="background-color:white; color:black;"><b>Label</b></td><td style="background-color:white; color:black;"><b>Coordinates</b></td></tr></table>`;
+        hdxAVCP.update("hullSegments", hullSeg);
+        
     },
     // setupUI for quickhull av
     setupUI() {
@@ -459,14 +498,12 @@ const hdxQHAV = {
         hdxAVCP.add("hullv2", visualSettings.v2);
         hdxAVCP.add("hullMax", visualSettings.averageCoord);
         hdxAVCP.add("checkingLine", visualSettings.visiting);
+        hdxAVCP.add("recursionStack", visualSettings.hoverV);
         hdxAVCP.add("hullSegments", visualSettings.discovered);
-        const hullSeg =`<span>Hull vertices found: <span id="hVertsNum">0</span></span>
-        <table id="hullVertexTable" style="width:100%;"><tr><td style="background-color:white; color:black;"><b>Label</b></td><td style="background-color:white; color:black;"><b>Coordinates</b></td></tr></table>`;
-        hdxAVCP.update("hullSegments", hullSeg);
     },
     // remove any changes made
     cleanupUI() {
-        for(let i=0;i<this.hullSegments.length;i++){
+        for(let i = 0; i < this.hullSegments.length; i++){
         	this.hullSegments[i].remove();
         }
     },
@@ -501,5 +538,23 @@ const hdxQHAV = {
 		hullLine[1] = [this.hullVertices[this.hullVertices.length-1].lat, this.hullVertices[this.hullVertices.length-1].lon];
 		this.hullSegments.push(L.polyline(hullLine, visualSettings.discovered));
 		this.hullSegments[this.hullSegments.length-1].addTo(map);
+    },
+    
+    // Updates shading on map
+    updateShading(){
+    	let pollygonObscure;
+    	if(this.obscureRegion != null){
+    		this.obscureRegion.remove();
+    	}
+    	thisobscureRegion = [null, null];
+    	if(this.vOne.lon < this.vTwo.lon){
+    		// Standard
+    		pollygonObscure = [[this.vOne.lat, this.vOne.lon], [this.vTwo.lat, this.vTwo.lon], [89, this.vTwo.lon], [89, 179], [-89, 179], [-89, -179], [89, -179], [89, this.vTwo.lon]];
+    	}else{
+    		// Underside
+    		pollygonObscure = [[this.vOne.lat, this.vOne.lon], [this.vTwo.lat, this.vTwo.lon], [-89, this.vTwo.lon], [-89, -179], [89, -179], [89, 179], [-89, 179], [-89, this.vOne.lon]];
+    	}
+    	this.obscureRegion = L.polygon(pollygonObscure, this.obscure);
+    	this.obscureRegion.addTo(map);
     }
 }
