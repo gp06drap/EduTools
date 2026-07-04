@@ -72,6 +72,8 @@ const hdxQHAV = {
             code: function(thisAV) {
                 highlightPseudocode(this.label, visualSettings.visiting);
 
+				thisAV.mostNorth = -90;
+				thisAV.mostSouth = 90;
 				for(let i = 0; i < waypoints.length; i++){
 					if(waypoints[i].lat > thisAV.mostNorth){
 						thisAV.mostNorth = waypoints[i].lat;
