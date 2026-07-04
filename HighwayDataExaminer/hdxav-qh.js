@@ -23,6 +23,8 @@ const hdxQHAV = {
     currentSet: [],
     vOne: null,
     vTwo: null,
+    mostNorth: -90,
+    mostSouth: 90,
     // array of vertices that makes up the hull
     hullVertices: [],
     // array of the line segments that makes up the hull
@@ -70,6 +72,16 @@ const hdxQHAV = {
             code: function(thisAV) {
                 highlightPseudocode(this.label, visualSettings.visiting);
 
+				for(let i = 0; i < waypoints.length; i++){
+					if(waypoints[i].lat > thisAV.mostNorth){
+						thisAV.mostNorth = waypoints[i].lat;
+					}
+					if(waypoints[i].lat < thisAV.mostSouth){
+						thisAV.mostSouth = waypoints[i].lat;
+					}
+				}
+				thisAV.mostNorth += (thisAV.mostNorth-thisAV.mostSouth)/10;
+				thisAV.mostSouth += -(thisAV.mostNorth-thisAV.mostSouth)/11;
                 const sorter = new HDXWaypointsSorter();
                 thisAV.currentSet = sorter.sortWaypoints();
                 thisAV.vOne = thisAV.currentSet[0];
@@ -552,10 +564,10 @@ const hdxQHAV = {
     	thisobscureRegion = [null, null];
     	if(this.vOne.lon < this.vTwo.lon){
     		// Standard
-    		pollygonObscure = [[this.vOne.lat, this.vOne.lon], [this.vTwo.lat, this.vTwo.lon], [89, this.vTwo.lon], [89, 179], [-89, 179], [-89, -179], [89, -179], [89, this.vTwo.lon]];
+    		pollygonObscure = [[this.vOne.lat, this.vOne.lon], [this.vTwo.lat, this.vTwo.lon], [89, this.vTwo.lon], [89, 179], [-89, 179], [-89, -179], [89, -179], [89, this.vTwo.lon], [this.mostNorth, this.vTwo.lon], [this.mostNorth, this.vOne.lon]];
     	}else{
     		// Underside
-    		pollygonObscure = [[this.vOne.lat, this.vOne.lon], [this.vTwo.lat, this.vTwo.lon], [-89, this.vTwo.lon], [-89, -179], [89, -179], [89, 179], [-89, 179], [-89, this.vOne.lon]];
+    		pollygonObscure = [[this.vOne.lat, this.vOne.lon], [this.vTwo.lat, this.vTwo.lon], [-89, this.vTwo.lon], [-89, -179], [89, -179], [89, 179], [-89, 179], [-89, this.vTwo.lon], [this.mostSouth, this.vTwo.lon], [this.mostSouth, this.vOne.lon]];
     	}
     	this.obscureRegion = L.polygon(pollygonObscure, this.obscure);
     	this.obscureRegion.addTo(map);
