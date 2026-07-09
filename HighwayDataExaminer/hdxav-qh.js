@@ -484,7 +484,7 @@ const hdxQHAV = {
         // Build HTML for the pseudocode, which is an HTML table, with
         // each state being a different row.
         this.code = '<table class="pseudocode"><tr id="START" class="pseudocode"><td class="pseudocode">';
-        this.code += 'sortedPoints[] &larr; sort(waypoints)<br>westMost &larr; sortedPoints[0]<br>eastMost &larr; sortedPoints[this.length-1]<br>slope &larr; (v<sub>2</sub>.y - v<sub>1</sub>.y)/(v<sub>2</sub>.x - v<sub>1</sub>.x)<br>y-intercept &larr; (slope*v<sub>1</sub>.x*(-1))+y-intercept<br>s<sub>1</sub> &larr; split(sortedPoints, slope, y-intercept, +)<br>s<sub>2</sub> &larr; currentSet-s<sub>1</sub></td></tr>';
+        this.code += 'sortedPoints[] &larr; sort(waypoints)<br>westMost &larr; sortedPoints[0]<br>eastMost &larr; sortedPoints[this.length-1]<br>slope &larr; (v<sub>2</sub>.y - v<sub>1</sub>.y)/(v<sub>2</sub>.x - v<sub>1</sub>.x)<br>y-intercept &larr; (slope*v<sub>1</sub>.x*(-1))+y-intercept<br>s<sub>1</sub> &larr; split(sortedPoints, slope, y-intercept)<br>s<sub>2</sub> &larr; currentSet-s<sub>1</sub></td></tr>';
         this.code += pcEntry(0,["qHull(s<sub>1</sub>, westMost, eastMost)","qHull(s<sub>2</sub>, eastMost, westMost)"],"callOne");
         this.code += pcEntry(0, ["qHull(currentSet, v<sub>1</sub>, v<sub>2</sub>)", "&emsp;&emsp;if(currentSet.len==0)","&emsp;&emsp;&emsp;&emsp; return", "&emsp;&emsp;slope &larr; (v<sub>2</sub>.y - v<sub>1</sub>.y)/(v<sub>2</sub>.x - v<sub>1</sub>.x)", "&emsp;&emsp;y-intercept &larr; (slope*v<sub>1</sub>.x*(-1))+y-intercept", "max &larr; [0, point]"], "fnTop");
         this.code += pcEntry(1, "for (i &larr; 0 to |currentSet-1|","findMaxLoop");
