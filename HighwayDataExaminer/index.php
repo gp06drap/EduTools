@@ -93,6 +93,7 @@
 <script src="hdxcomputePartStats.js" type="text/javascript"></script>
 <script src="hdxav-gapt.js" type="text/javascript"></script>
 <script src="hdxav-clickDis.js" type="text/javascript"></script>
+<script src="hdxav-qh.js" type="text/javascript"></script>
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css"/>
@@ -185,7 +186,7 @@ will display
     </table>
   </div>
   <div id="title">
-    <p id="metalTitle"><img src="MetalBetaLogoSmall.png" height="40px" style="padding-left:1rem" alt="M">ETAL&nbsp;HDX</p>
+    <a href=""><p id="metalTitle"><img src="MetalBetaLogoSmall.png" height="40px" style="padding-left:1rem" alt="M">ETAL&nbsp;HDX</p></a>
   </div>
 </div>
 
