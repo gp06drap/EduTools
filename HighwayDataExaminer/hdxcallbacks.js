@@ -171,6 +171,56 @@ function startPausePressed() {
         hdxAV.setStatus(hdxStates.AV_RUNNING);
         hdxAV.nextStep(hdxAV.currentAV);
         break;
+    
+    case hdxStates.AV_COMPLETE:
+    
+    	hdxAV.currentAV.cleanupUI();
+    	hdxAV.currentAV.setupUI();
+    	hdxAV.setStatus(hdxStates.AV_SELECTED);
+    	document.getElementById("pseudoCheckbox").checked = true;
+    	// if we have selected but not yet started an algorithm,
+        // this is a start button
+        hdxAV.setStatus(hdxStates.AV_RUNNING);
+        if (hdxAV.delay == -1) {
+            hdxAV.startPause.innerHTML = "Next Step";
+        }
+        else {
+            hdxAV.startPause.innerHTML = "Pause";
+        }
+
+        hdxAV.algStat.innerHTML = "Initializing";
+
+	// vertices and/or edges here?  Update only if useV is specified
+	if (hdxAV.currentAV.hasOwnProperty("useV")) {
+            initWaypointsAndConnections(hdxAV.currentAV.useV,
+					hdxAV.currentAV.useE,
+					visualSettings.undiscovered);
+	}
+
+	// remaining AV-specific preparation, after which the AV's
+	// code property should be HTML for the pseudocode
+        hdxAV.currentAV.prepToStart();
+	
+        // set pseudocode
+        document.getElementById("pseudoText").innerHTML = hdxAV.currentAV.code;
+      
+        // reset all execution counts
+        hdxAV.execCounts = [];
+        hdxAV.maxExecCount = 0;
+
+        showHidePseudocode();
+        hdxAVCP.showEntries();
+
+        // get the simulation going, always start with the "START"
+        // action, then do it
+        
+        addBreakpointListeners();
+        resizePanels();
+        hdxAVCP.hideEntries();
+        newMapTileSelected();
+        hdxAV.nextAction = "START";
+        hdxAV.nextStep(hdxAV.currentAV);
+        break;
 
     default:
         alert("startPausePressed, unexpected status=" + hdxAV.status);
