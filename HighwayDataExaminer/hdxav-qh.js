@@ -262,6 +262,11 @@ const hdxQHAV = {
                 
                 hdxQHAV.updateShading();
                 
+                for(let i = 0; i < thisAV.currentSet.length; i++){
+					updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[i]),
+				     visualSettings.undiscovered, 40, false);
+				}
+                
                 hdxAV.nextAction = "findMaxLoop";
             },
             logMessage: function(thisAV) {
@@ -298,14 +303,15 @@ const hdxQHAV = {
 				if(distance > thisAV.max[0]){
 					if(thisAV.max[1] > -1){
 						updateMarkerAndTable(waypoints.indexOf(thisAV.max[2]),
-				    	 visualSettings.discovered, 40, false);
+				    	 visualSettings.discarded, 40, false);
 				     }
 					thisAV.max = [distance, thisAV.nextToCheck, thisAV.currentSet[thisAV.nextToCheck]];
 					updateMarkerAndTable(waypoints.indexOf(thisAV.max[2]),
 				     visualSettings.averageCoord, 40, false);
+				    hdxAVCP.update("hullMax", "v<sub>max</sub>: "+thisAV.max[2].label+"<br>Distance: "+thisAV.max[0].toFixed(3));
 				}else{
 					updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[thisAV.nextToCheck]),
-				     visualSettings.discovered, 40, false);
+				     visualSettings.discarded, 40, false);
 				}
                 
                 hdxAV.nextAction = "findMaxLoop";
@@ -320,7 +326,13 @@ const hdxQHAV = {
             code: function(thisAV) {
                 highlightPseudocode(this.label, visualSettings.visiting);
 
+				for(let i = 0; i < thisAV.currentSet.length; i++){
+					updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[i]),
+				     visualSettings.discovered, 40, false);
+				}
 				if(thisAV.max[2] != null){
+					updateMarkerAndTable(waypoints.indexOf(thisAV.max[2]),
+				     visualSettings.averageCoord, 40, false);
 					thisAV.vOneTmp = thisAV.vOne;
 					thisAV.vTwoTmp = thisAV.max[2];
 					// temporary line
@@ -336,7 +348,6 @@ const hdxQHAV = {
 					thisAV.futureAction = "secondSplit";
 					hdxAV.nextAction = "splitLoop";
 				
-					hdxAVCP.update("hullMax", "v<sub>max</sub>: "+thisAV.max[2].label);
 					hdxAVCP.update("checkingLine", "Current line: y="+thisAV.slope+"x+"+thisAV.yIntercept+"<br>"+thisAV.vOneTmp.label+"<-->"+thisAV.vTwoTmp.label);
 				}else{
 					hdxAV.nextAction = "postSplits";
