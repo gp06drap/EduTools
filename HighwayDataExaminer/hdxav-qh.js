@@ -157,14 +157,14 @@ const hdxQHAV = {
 					}else{
 						thisAV.sTwo.push(thisAV.currentSet[thisAV.nextToCheck]);
 						updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[thisAV.nextToCheck]),
-				     visualSettings.discarded, 40, false);
+				     visualSettings.searchFailed, 40, false);
 					}
 				}else{
 				// below hull
 					if(thisAV.currentSet[thisAV.nextToCheck].lat > (thisAV.slope*thisAV.currentSet[thisAV.nextToCheck].lon+thisAV.yIntercept)){
 						thisAV.sTwo.push(thisAV.currentSet[thisAV.nextToCheck]);
 						updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[thisAV.nextToCheck]),
-				     visualSettings.discarded, 40, false);
+				     visualSettings.searchFailed, 40, false);
 					}else{
 						thisAV.sOne.push(thisAV.currentSet[thisAV.nextToCheck]);
 						updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[thisAV.nextToCheck]),
@@ -326,13 +326,7 @@ const hdxQHAV = {
             code: function(thisAV) {
                 highlightPseudocode(this.label, visualSettings.visiting);
 
-				for(let i = 0; i < thisAV.currentSet.length; i++){
-					updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[i]),
-				     visualSettings.discovered, 40, false);
-				}
 				if(thisAV.max[2] != null){
-					updateMarkerAndTable(waypoints.indexOf(thisAV.max[2]),
-				     visualSettings.averageCoord, 40, false);
 					thisAV.vOneTmp = thisAV.vOne;
 					thisAV.vTwoTmp = thisAV.max[2];
 					// temporary line
@@ -345,6 +339,10 @@ const hdxQHAV = {
                 	thisAV.compLine[thisAV.compLine.length-1].addTo(map);
 					thisAV.nextToCheck = -1;
 					thisAV.currentSet.splice(thisAV.max[1],1);
+					for(let i = 0; i < thisAV.currentSet.length; i++){
+						updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[i]),
+				    	 visualSettings.undiscovered, 40, false);
+					}
 					thisAV.futureAction = "secondSplit";
 					hdxAV.nextAction = "splitLoop";
 				
@@ -363,6 +361,7 @@ const hdxQHAV = {
             code: function(thisAV) {
                 highlightPseudocode(this.label, visualSettings.visiting);
 
+				
 				thisAV.vOneTmp = thisAV.max[2];
 				thisAV.vTwoTmp = thisAV.vTwo;
 				// temporary line
@@ -378,6 +377,10 @@ const hdxQHAV = {
 				thisAV.currentSet = thisAV.sTwo;
 				thisAV.sOne = [];
 				thisAV.sTwo = [];
+				for(let i = 0; i < thisAV.currentSet.length; i++){
+					updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[i]),
+				     visualSettings.undiscovered, 40, false);
+				}
 				thisAV.futureAction = "postSplits";
                 hdxAV.nextAction = "splitLoop";
                 
