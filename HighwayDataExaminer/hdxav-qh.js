@@ -396,6 +396,10 @@ const hdxQHAV = {
             code: function(thisAV) {
                 highlightPseudocode(this.label, visualSettings.visiting);
 
+				for(let i = 0; i < thisAV.sTwo.length; i++){
+					updateMarkerAndTable(waypoints.indexOf(thisAV.sTwo[i]),
+				     visualSettings.discarded, 40, false);
+				}
 				thisAV.sTwo = thisAV.sOne;
 				thisAV.sOne = thisAV.sZero;
 				hdxAV.nextAction = "fnTop";
