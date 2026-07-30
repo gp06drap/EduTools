@@ -90,8 +90,8 @@ const hdxAV = {
             break;
 
         case hdxStates.AV_COMPLETE:
-            this.startPause.disabled = true;
-            this.startPause.innerHTML = "Start";
+            this.startPause.disabled = false;
+            this.startPause.innerHTML = "Restart";
             break;
         default:
             // other AV in progress states

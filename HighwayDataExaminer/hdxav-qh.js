@@ -157,14 +157,14 @@ const hdxQHAV = {
 					}else{
 						thisAV.sTwo.push(thisAV.currentSet[thisAV.nextToCheck]);
 						updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[thisAV.nextToCheck]),
-				     visualSettings.discarded, 40, false);
+				     visualSettings.searchFailed, 40, false);
 					}
 				}else{
 				// below hull
 					if(thisAV.currentSet[thisAV.nextToCheck].lat > (thisAV.slope*thisAV.currentSet[thisAV.nextToCheck].lon+thisAV.yIntercept)){
 						thisAV.sTwo.push(thisAV.currentSet[thisAV.nextToCheck]);
 						updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[thisAV.nextToCheck]),
-				     visualSettings.discarded, 40, false);
+				     visualSettings.searchFailed, 40, false);
 					}else{
 						thisAV.sOne.push(thisAV.currentSet[thisAV.nextToCheck]);
 						updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[thisAV.nextToCheck]),
@@ -262,6 +262,11 @@ const hdxQHAV = {
                 
                 hdxQHAV.updateShading();
                 
+                for(let i = 0; i < thisAV.currentSet.length; i++){
+					updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[i]),
+				     visualSettings.undiscovered, 40, false);
+				}
+                
                 hdxAV.nextAction = "findMaxLoop";
             },
             logMessage: function(thisAV) {
@@ -298,14 +303,15 @@ const hdxQHAV = {
 				if(distance > thisAV.max[0]){
 					if(thisAV.max[1] > -1){
 						updateMarkerAndTable(waypoints.indexOf(thisAV.max[2]),
-				    	 visualSettings.discovered, 40, false);
+				    	 visualSettings.discarded, 40, false);
 				     }
 					thisAV.max = [distance, thisAV.nextToCheck, thisAV.currentSet[thisAV.nextToCheck]];
 					updateMarkerAndTable(waypoints.indexOf(thisAV.max[2]),
 				     visualSettings.averageCoord, 40, false);
+				    hdxAVCP.update("hullMax", "v<sub>max</sub>: "+thisAV.max[2].label+"<br>Distance: "+thisAV.max[0].toFixed(3));
 				}else{
 					updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[thisAV.nextToCheck]),
-				     visualSettings.discovered, 40, false);
+				     visualSettings.discarded, 40, false);
 				}
                 
                 hdxAV.nextAction = "findMaxLoop";
@@ -333,10 +339,13 @@ const hdxQHAV = {
                 	thisAV.compLine[thisAV.compLine.length-1].addTo(map);
 					thisAV.nextToCheck = -1;
 					thisAV.currentSet.splice(thisAV.max[1],1);
+					for(let i = 0; i < thisAV.currentSet.length; i++){
+						updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[i]),
+				    	 visualSettings.undiscovered, 40, false);
+					}
 					thisAV.futureAction = "secondSplit";
 					hdxAV.nextAction = "splitLoop";
 				
-					hdxAVCP.update("hullMax", "v<sub>max</sub>: "+thisAV.max[2].label);
 					hdxAVCP.update("checkingLine", "Current line: y="+thisAV.slope+"x+"+thisAV.yIntercept+"<br>"+thisAV.vOneTmp.label+"<-->"+thisAV.vTwoTmp.label);
 				}else{
 					hdxAV.nextAction = "postSplits";
@@ -352,6 +361,7 @@ const hdxQHAV = {
             code: function(thisAV) {
                 highlightPseudocode(this.label, visualSettings.visiting);
 
+				
 				thisAV.vOneTmp = thisAV.max[2];
 				thisAV.vTwoTmp = thisAV.vTwo;
 				// temporary line
@@ -367,6 +377,10 @@ const hdxQHAV = {
 				thisAV.currentSet = thisAV.sTwo;
 				thisAV.sOne = [];
 				thisAV.sTwo = [];
+				for(let i = 0; i < thisAV.currentSet.length; i++){
+					updateMarkerAndTable(waypoints.indexOf(thisAV.currentSet[i]),
+				     visualSettings.undiscovered, 40, false);
+				}
 				thisAV.futureAction = "postSplits";
                 hdxAV.nextAction = "splitLoop";
                 
@@ -382,6 +396,10 @@ const hdxQHAV = {
             code: function(thisAV) {
                 highlightPseudocode(this.label, visualSettings.visiting);
 
+				for(let i = 0; i < thisAV.sTwo.length; i++){
+					updateMarkerAndTable(waypoints.indexOf(thisAV.sTwo[i]),
+				     visualSettings.discarded, 40, false);
+				}
 				thisAV.sTwo = thisAV.sOne;
 				thisAV.sOne = thisAV.sZero;
 				hdxAV.nextAction = "fnTop";
